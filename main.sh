@@ -23,6 +23,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>
 #
 
+#!/usr/bin/env bash
+
 clear
 
 declare -a ERRORS
@@ -45,7 +47,10 @@ LICENSE_AUTHOR="hxAri"
 # User Signin
 LOGIN=1
 
-# Default user credential
+# OpenSSL Password
+OPENSSL_PASSWORD="*"
+
+# User credential
 USERNAME=
 PASSWORD=
 
@@ -260,11 +265,58 @@ usage() {
     ascii "usage"
 }
 
-input() {
+loggin() {
+    if [[ "$1" != "" ]]; then
+        if [[ "$2" != "" ]]; then
+            if [[ -f $( target "users/$1" ) ]]; then
+                if [[ $( echo -n $( cat $( target "users/$1" ) ) | openssl aes-256-cbc -d -pbkdf2 -a -pass pass:$OPENSSL_PASSWORD ) == $2 ]]; then
+                    USERNAME=$1
+                    PASSWORD=$2
+                    echo 1
+                else
+                    ERRORS[${#ERRORS[@]}]="Invalid login password!"
+                fi
+            else
+                ERRORS[${#ERRORS[@]}]="Username $1 is not in the list."
+            fi
+        else
+            ERRORS[${#ERRORS[@]}]="Password can't be empty."
+        fi
+    else
+        ERRORS[${#ERRORS[@]}]="Username can't be empty."
+    fi
+}
+
+handle() {
     if [[ "$1" ]]; then
         case $1 in
             "main" )
                 ascii "border"
+                if [[ $LOGIN == 1 ]]; then
+                    if [[ $PASSWORD == "" ]]; then
+                        lists=(
+                            "${c0}"
+                            "${c0}   The login feature has been activated."
+                            "${c0}   Enter your username and password."
+                            "${c0}"
+                        )
+                        for list in "${lists[@]}"; do
+                            printf "${list}\n"
+                        done
+                        printf "${c0}\x20\x20\x20username${c11}: ${c17}" & read username
+                        printf "${c0}\x20\x20\x20password${c11}: ${c21}" & read password
+                        if [[ $( loggin "$username" "$password" ) == 1 ]]; then
+                            handle "home"
+                        fi
+                    else
+                        handle "home"
+                    fi
+                else
+                    handle "home"
+                fi
+            ;;
+            "home" )
+                clear
                 lists=( # ${c11}
                     "${c0}"
                     "${c0}   1${c11} => ${c17}"
@@ -282,21 +334,6 @@ input() {
                 for list in "${lists[@]}"; do
                     printf "${list}\n"
                 done
-                printf "   "
-                printf ">> "
-                read systemIn
-                if [[ $systemIn != "" ]]; then
-                    case $systemIn in
-                        0 )
-                            printf ""
-                        ;;
-                        * )
-                            input "main"
-                        ;;
-                    esac
-                else
-                    input "main"
-                fi
             ;;
             * )
                 ERRORS[${#ERRORS[@]}]="Input error, no match for $1"
@@ -307,17 +344,9 @@ input() {
     fi
 }
 
-# User login.
-login() {
-    echo 0
-}
-
 # Main program.
 main() {
-    
-    input "main"
-    input
-    
+    handle "main"
     if [[ "${ERRORS}" ]]; then
         echo
         for i in "${ERRORS[@]}"; do
@@ -331,4 +360,5 @@ main() {
 main
 
 # Close program.
-exit 0
+exit
+
