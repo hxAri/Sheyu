@@ -30,8 +30,8 @@ If you'd like to improve the documentation for Sheyu, simply follow these steps:
 
 ## Code of Conduct
 
-By contributing to Sheyu, you agree to follow the project's [Code of Conduct](https://github.com/hxAri/Sheyu/blob/master/.github/CONDUCT.md). This document outlines the standards of behavior expected from all contributors.
+By contributing to Sheyu, you agree to follow the project's [Code of Conduct](https://github.com/hxAri/Sheyu/blob/main/.github/CONDUCT.md). This document outlines the standards of behavior expected from all contributors.
 
 ## License
 
-By contributing to Sheyu, you agree to license your contributions under the project's [license](https://github.com/hxAri/Sheyu/blob/master/LICENSE).
+By contributing to Sheyu, you agree to license your contributions under the project's [license](https://github.com/hxAri/Sheyu/blob/main/LICENSE).
