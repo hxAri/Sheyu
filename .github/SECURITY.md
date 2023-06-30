@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in this project, please report it to us as soon as possible. 
 
-You can report security vulnerabilities by sending an email to [ari160824@gmail.com](mailto:ari160824@gmail.com). 
+You can report security vulnerabilities by sending an email to [hxari@proton.me](mailto:hxari@proton.me). 
 
 Please do not publicly disclose the vulnerability until we have had a chance to investigate and issue a fix.
 
