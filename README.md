@@ -1,5 +1,5 @@
 ## Sheyu
-Sheyu **Sheru Yūtiriti**
+Sheyu **Sheruyūtiriti**
 
 ## Contributing
 If you'd like to contribute to Sheyu, please see the [Contribution](https://github.com/hxAri/Sheyu/blob/main/.github/CONTRIBUTION.md) rules to participate.
