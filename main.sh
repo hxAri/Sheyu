@@ -32,33 +32,58 @@ AUTHOR_EMAIL=hxari@proton.me
 # Version Number
 VERSION=1.0.2
 
-# System Input.
-function input()
+# Show System Informations.
+function show()
 {
-	while true; do
-		if [[ $1 != "" ]]; then
-			echo -e "$1:\x20\c"
-		else
-			echo -e "Input:\x20\c"
-		fi
-		read inputs
-		if [[ $inputs != "" ]]; then
-			break
-		fi
-	done
-	echo $inputs
+	function detectDistro()
+	{
+		return 0
+	}
+	function detectKernel()
+	{
+		return 0
+	}
 }
 
 # Main Program.
 function main()
 {
-	# ...
+	# Main menu.
 	function menu()
 	{
-		input "input"
+		clear
+		show
+		echo -e ""
+		echo -e "1. Change File Mode"
+		echo -e "2. Change Current Working Directory"
+		echo -e "3. Display List File/Directory"
+		echo -e "4. Encrypt or Decrypt File"
+		echo -e "5. File Info"
+		echo -e "6. Move Directory"
+		echo -e "7. "
+		echo -e "8. "
+		echo -e "9. "
+		echo -e "0. Exit"
+		echo -e ""
 	}
 	menu
-	return 0
+	while true; do
+		if [[ $input != "" ]]; then
+			case $input in
+				1 )
+					break
+				;;
+				0 )
+					exit
+				;;
+				*)
+					echo "Input of range"
+				;;
+			esac
+		fi
+		echo -e "\rInput:\x20\c"
+		read input
+	done
 }
 
 # Starting program.
