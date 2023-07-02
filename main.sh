@@ -55,7 +55,7 @@ function main()
 	# ...
 	function menu()
 	{
-		input "Meki"
+		input "input"
 	}
 	menu
 	return 0
