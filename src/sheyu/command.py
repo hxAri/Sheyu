@@ -30,23 +30,30 @@ from typing import final, List
 @final
 class Command:
 	
-	def __init__( self, name:str, path:str, execute:str, arguments:List[str]=None, options:List[str]=None, description:List[str]=None ) -> None:
+	def __init__( self, name:str, pathname:str, execute:str, arguments:List[str]=None, options:List[str]=None, description:List[str]=None, meta:str=None ) -> None:
+		self.__meta__:str = meta
 		self.__name__:str = name 
-		self.__path__:str = path
+		self.__pathname__:str = pathname
 		self.__execute__:str = execute
 		self.__arguments__:List[str] = arguments
 		self.__options__:List[str] = options
 		self.__description__:List[str] = description 
 
 	@property
+	def meta( self ) -> str:
+		return self.__meta__
+	
+	@property
 	def name( self ) -> str:
 		return self.__name__
-	@property
-	def path( self ) -> str:
-		return self.__path__
+	
 	@property
 	def execute( self ) -> str:
 		return self.__execute__
+	
+	@property
+	def pathname( self ) -> str:
+		return self.__pathname__
 	
 	@property
 	def arguments( self ) -> List[str]:
