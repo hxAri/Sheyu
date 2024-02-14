@@ -33,17 +33,36 @@ from prompt_toolkit.completion import (
 )
 from prompt_toolkit.document import Document
 from subprocess import getoutput
-from typing import Iterable, List
+from typing import Any, Dict, Iterable, List
 
 from sheyu.command import Command
 from sheyu.parser import Parser
 
+
+ARGUMENT:int = 0
+OPTIONAL:int = 1
 
 class Completer( BaseCompleter ):
 
 	""" Completer Implementation """
 
 	def __init__( self ) -> None:
+		self.__registed__:Dict[str,Command] = {
+			"echo": Command( **{
+				"meta": "[-neE] [arg ...]",
+				"name": "echo",
+				"pathname": "/usr/bin",
+				"execute": "/usr/bin/echo",
+				"arguments": None,
+				"options": [
+					"-e",
+					"-E",
+					"-n"
+				],
+				"description": [
+				]
+			})
+		}
 		self.__commands__:List[Command] = self.get_executables()
 	
 	@property
@@ -52,18 +71,30 @@ class Completer( BaseCompleter ):
 
 	def get_completions( self, document:Document, complete_event:CompleteEvent ) -> Iterable[Completion]:
 		textBeforeCursor = document.text_before_cursor
-		textBeforeCursorParts = textBeforeCursor.split( "\x20" )
+		textBeforeCursorParts = Parser.parse( textBeforeCursor )
 		textBeforeCursorPart = textBeforeCursorParts[0]
 		del textBeforeCursorParts[0]
-		textBeforeCursorJoin = "\x20".join( textBeforeCursorParts )
+		length = - len( textBeforeCursor )
 		for command in self.commands:
 			if command.name.startswith( textBeforeCursorPart ):
-				if len( textBeforeCursorParts ) >= 1:
-					for option in [ "-e", "-E", "-n" ]:
-						if option.startswith( textBeforeCursorJoin ):
-							yield Completion( text=f"{command.name} {option}", start_position=-len( textBeforeCursor ), display_meta=command.path )
-				else:
-					yield Completion( text=command.name, start_position=-len( textBeforeCursor ), display_meta=command.path )
+				if complete_event.text_inserted:
+					yield Completion( 
+						text=command.name, 
+						start_position=length, 
+						display=f"{command.name}",
+						display_meta=command.meta,
+						# style="",
+						# selected_style=""
+					)
+				elif complete_event.completion_requested:
+					yield Completion( 
+						text=f"{command.name}\nxx", 
+						start_position=length, 
+						display=command.name,
+						display_meta=f"{command.meta}\nxxx",
+						# style="",
+						selected_style="red"
+					).__doc__
 	
 	def get_executables( self ) -> List[Command]:
 
@@ -87,15 +118,23 @@ class Completer( BaseCompleter ):
 						continue
 					if not access( file.path, EXECUTABLE ):
 						continue
+					command = file.name.strip()
+					execute = file.path
+					pathname = dirname( file.path )
+					if not command in self.registed:
+						results.append( Command( command, pathname, execute ) )
+					else:
+						self.registed[command].__execute__ = execute
+						self.registed[command].__pathname__ = pathname
+						results.append( self.registed[command] )
 					appends.append( file.name )
-					results.append( Command(
-						file.name,
-						dirname( file.path ),
-						file.path
-					))
 				except PermissionError as e:
 					pass
 			...
 		return results
+	
+	@property
+	def registed( self ) -> Dict[str,Command]:
+		return self.__registed__
 	
 	...

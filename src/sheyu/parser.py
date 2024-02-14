@@ -24,10 +24,12 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>
 #
 
+from shlex import split as ShlexSplit
+from typing import List
 
 class Parser:
 
-	def parse():
-		...
+	def parse( string:str ) -> List[str]:
+		return ShlexSplit( string, posix=False )
 	
 	...
