@@ -28,4 +28,7 @@ from sheyu import Sheyu
 
 if __name__ == "__main__":
 	sheyu = Sheyu()
-	sheyu.session.prompt()
+	try:
+		sheyu.session.prompt()
+	except KeyboardInterrupt:
+		exit( 1 )
