@@ -1,3 +1,10 @@
 
-# Sheruyūtiriti
-backup
+# python Byte-code compiled.
+__pycache__
+
+# Sheruyūtiriti Application Properties
+properties.yaml
+
+# Sheruyūtiriti Ignored
+ignored
+ignored/**

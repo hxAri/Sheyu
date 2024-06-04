@@ -24,12 +24,35 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>
 #
 
-from shlex import split as ShlexSplit
-from typing import List
+from typing import final
 
-class Parser:
+from sheyu.config import Config
+from sheyu.property import (
+	Dumper, 
+	JsonDumper, 
+	JsonLoader, 
+	Loader, 
+	Properties, 
+	YamlDumper, 
+	YamlLoader
+)
 
-	def parse( string:str ) -> List[str]:
-		return ShlexSplit( string, posix=False )
+
+@final
+class Sheyu:
+	
+	""" ... """
+	
+	def __init__( self, loader:Loader=YamlLoader ) -> None:
+		self.dumper:Dumper = JsonDumper if loader is JsonLoader else YamlDumper
+		self.loader:Loader = loader
+	
+	def main( self ) -> None:
+		Config.load( self.loader )
 	
 	...
+
+
+if __name__ == "__main__":
+	sheyu = Sheyu()
+	sheyu.main()

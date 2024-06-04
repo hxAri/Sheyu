@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+
+#
+# @author hxAri
+# @create 24.04-2022
+# @update -
+# @github https://github.com/hxAri/Sheyu
+#
+# Copyright (c) 2022 hxAri <hxari@proton.me>
+#
+# GNU General Public License v3, 29 June 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>
+#
+
+# Clear terminal screen.
+clear
+
+# Target basename.
+pathname=$(basename $0)
+
+# Change current working directory.
+cd $(dirname $0)
+
+# Iterate down a (possible) chain of symlinks.
+while [ -L "$pathname" ]
+do
+    pathname=$(readlink $pathname)
+    cd $(dirname $pathname)
+    pathname=$(basename $pathname)
+done
+ 
+# Get the Sheyu basepath.
+basepath=$(pwd -P)
+
+# By default the Sheyu saves the virtual environment activation
+# location in a file called .virtual in the Project directory.
+virtualization="${basepath}/.virtual"
+virtual=
+
+# For compatibility system.
+if [[ ! $(command -v puts) ]]; then
+	function puts() {
+		echo -e "\x1b[0m$@"
+	}
+fi
+
+# Handle setup python module requirements.
+function modinstall() {
+	local envfiname=$1
+	read -e -p "$(puts "$envfiname: install python module requirements [Y/n] ")" installmod
+	if [[ "${installmod^^}" == "Y" ]]; then
+		source "$envfiname"
+		if [[ $? -eq 0 ]]; then
+			if [[ ! -f "${basepath}/requirements.txt" ]]; then
+				puts "${basepath}/requirements.txt: no such file or directory"
+				exit 1
+			fi
+			pip install -r "${basepath}/requirements.txt"
+			if [[ $? -ne 0 ]]; then
+				puts "${basepath}/requirements.txt: failed install module requirements"
+				exit 1
+			fi
+			deactivate
+			puts "${basepath}/requirements.txt: all module requirements installed"
+			puts "please re-run this programs"
+			exit 0
+		else
+			puts "$envfiname: failed to activate python virtual environment"
+			exit 1
+		fi
+	else
+		puts "$envfiname: aborted"
+		exit 1
+	fi
+}
+
+# Handle create python virtual environment.
+function envcreate() {
+	local envfiname=$1
+	puts "$envfiname: creating virtual environment"
+	python3 -m venv "$envfiname"
+	if [[ $? -ne 0 ]]; then
+		puts "$envfiname: failed create virtual environment"
+		exit 1
+	fi
+	echo "$envfiname" > "$virtualization"
+	if [[ $? -ne 0 ]]; then
+		puts "$envfiname: failed create virtual environment"
+		exit 1
+	fi
+	modinstall "$envfiname"
+}
+
+if [[ ! -f $virtualization ]]; then
+	envfiname=
+	puts "input virtual environment activation: e.g /home/$(whoami)/virtual/bin/activate"
+	while [[ ! -f $virtualization ]]; do
+		read -e -p "$(puts pathname:) " envfiname
+		if [[ -f "$envfiname" ]]; then
+			echo "$envfiname" > "$virtualization"
+			if [[ $? -ne 0 ]]; then
+				puts "$envfiname: failed create virtual environment"
+				exit 1
+			fi
+			modinstall "$envfiname"
+		elif [[ -d "$envfiname" ]]; then
+			if [[ $(ls -A "$envfiname") ]]; then
+				read -e -p "$(puts "${envfiname}: This directory is not empty are you sure [Y/n] ")" envforcec
+				if [[ "${envforcec^^}" != "Y" ]]; then
+					envfiname=
+					continue
+				fi
+				envcreate "$envfiname"
+			fi
+		else
+			puts "$envfiname: no such file or directory"
+			read -e -p "$(puts "$envfiname: create the virtual environment here [Y/n] ")" envcreate
+			if [[ "${envcreate^^}" != "Y" ]]; then
+				envfiname=
+				continue
+			fi
+			envcreate "$envfiname"
+		fi
+	done
+fi
+
+# Read saved Sheyu virtual environment activation.
+virtual="$(cat $virtualization)"
+
+# Clean Python cache Byte-Code compiled.
+function clean() {
+	for cache in $(find "${basepath}/" | grep "__pycache__"); do
+		if [[ -d $cache ]]; then
+			rm -rf $cache
+			if [[ $? -ne 0 ]]; then
+				puts "${cache}: failed remove directory"
+			fi
+		fi
+	done
+}
+
+# Activate the python virtual environment.
+source "$virtual"
+
+if [[ $? -ne 0 ]]; then
+	puts "$virtual: failed to activate python virtual environment"
+fi
+
+python3 "src/sheyu.py" "$@"
+clean
