@@ -24,11 +24,18 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>
 #
 
-from sheyu import Sheyu
+from builtins import str as Str
+from sys import path as paths
+from typing import Final, MutableSequence
 
-if __name__ == "__main__":
-	sheyu = Sheyu()
-	try:
-		sheyu.session.prompt()
-	except KeyboardInterrupt:
-		exit( 1 )
+
+BASEPARTS:MutableSequence[Str] = paths[0].split( "\x2f" )
+BASEPATH:Final[Str] = "\x2f".join( BASEPARTS[:BASEPARTS.index( "src" )] )
+""" The Base Path of Society Application """
+
+BASEPARTS:MutableSequence[Str] = paths[4].split( "\x2f" )
+BASEVENV:Final[Str] = "\x2f".join( BASEPARTS[:BASEPARTS.index( "lib" )] )
+""" The Base Path of Virtual Environment """
+
+# Delete unused constant.
+del BASEPARTS

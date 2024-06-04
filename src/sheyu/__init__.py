@@ -23,9 +23,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>
 #
-
-from sheyu.colorize import Colorize
-from sheyu.command import Command
-from sheyu.parser import Parser
-from sheyu.sheyu import Sheyu
-
